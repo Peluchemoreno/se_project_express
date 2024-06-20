@@ -5,8 +5,8 @@ const validator = require('validator');
 const clothingItemSchema = new mongoose.Schema({
   name: {
     type: String,
-    min: 2,
-    max: 30,
+    minlength: 2,
+    maxlength: 30,
     required: true
   },
   weather: {
@@ -38,4 +38,6 @@ const clothingItemSchema = new mongoose.Schema({
   }]
 })
 
-module.exports.clothingItem = mongoose.model('clothingItem', clothingItemSchema);
+const ClothingItem = mongoose.model('clothingItem', clothingItemSchema)
+
+module.exports = ClothingItem;
