@@ -36,10 +36,7 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   const {userId} = req.params
   User.findById(userId)
-  .orFail(()=>{
-    const error = new Error('this user does not exist');
-    throw error;
-  })
+  .orFail()
   .then((user)=>{
     res.status(200).send(user)
   })
