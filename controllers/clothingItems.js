@@ -1,7 +1,7 @@
 const ClothingItem = require('../models/clothingItem')
 
 function getItems(req, res){
-  console.log('getting items' + ' ' + req.body)
+  console.log('getting all items')
   ClothingItem.find({})
   .orFail(()=>{
     const error = new Error('there are no items')
@@ -22,6 +22,7 @@ function getItems(req, res){
 
 function getItem(req, res){
   console.log('getting item')
+
   const {itemId} = req.params
   ClothingItem.findById(itemId)
   .orFail(()=>{
@@ -40,13 +41,14 @@ function getItem(req, res){
 function createItem(req, res){
   console.log('creating item')
   const {name, weather, imageUrl} = req.body;
-  console.log(req.body)
-  ClothingItem.create({name, weather, imageUrl})
+
+  ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
   .then(item => {
     res.status(201).send(item)
   })
   .catch(err => {
     console.error(err)
+    res.status(500).send({error: err.message})
   })
 }
 
