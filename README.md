@@ -10,8 +10,6 @@ This project is the back end for my WTWR project. Its current level of functiona
 - Return the entire list of users
 - Return a single user by their ID
 
----
-
 ### Items
 
 - Create a clothing item
@@ -21,11 +19,7 @@ This project is the back end for my WTWR project. Its current level of functiona
 - Dislike an item
 - Delete an item from the database
 
----
-
 ## Technoligies used
-
----
 
 - Node.js
 - Express.js
@@ -35,8 +29,6 @@ This project is the back end for my WTWR project. Its current level of functiona
 - Prettier
 - Validator npm package
 - Mongoose
-
----
 
 ## Running the Project
 
