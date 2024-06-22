@@ -1,24 +1,17 @@
 const router = require('express').Router();
-const {getItems, getItem, createItem} = require('../controllers/clothingItems');
+const {getItems, getItem, createItem, deleteItem, likeItem, dislikeItem} = require('../controllers/clothingItems');
 
-router.get('/', (req, res, next) => {
-  console.log('GET / request received');
-  console.log('Headers:', req.headers);
-  getItems(req, res, next);
-});
+router.get('/', getItems);
 
-router.get('/:itemId', (req, res, next) => {
-  console.log(`GET /${req.params.itemId} request received`);
-  console.log('Headers:', req.headers);
-  getItem(req, res, next);
-});
+router.get('/:itemId', getItem);
 
-router.post('/', (req, res, next) => {
-  console.log('POST / request received');
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  createItem(req, res, next);
-});
+router.post('/', createItem);
+
+router.delete('/:itemId', deleteItem)
+
+router.put('/:itemId/likes', likeItem)
+
+router.delete('/:itemId/likes', dislikeItem)
 
 module.exports = router;
 
