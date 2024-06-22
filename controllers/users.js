@@ -1,7 +1,6 @@
 const {
-  castError,
+  castOrValidationError,
   documentNotFoundError,
-  validationError,
   defaultError,
 } = require("../utils/errors");
 
@@ -15,24 +14,25 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(validationError).send({ message: err.message });
+        return res
+          .status(castOrValidationError)
+          .send({ message: "Invalid data" });
       }
       if (err.name === "CastError") {
-        return res.status(castError).send({ message: err.message });
+        return res
+          .status(castOrValidationError)
+          .send({ message: "Invalid data" });
       }
-      return res.status(defaultError).send({ message: err.message });
+      return res
+        .status(defaultError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
 const getUsers = (req, res) => {
   User.find({})
-    .orFail(() => {
-      const error = new Error("there are no users");
-      error.statusCode = 404;
-      throw error;
-    })
     .then((users) => {
-      res.status(200).send({ data: users });
+      res.send(users);
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -40,7 +40,7 @@ const getUsers = (req, res) => {
       } else {
         res
           .status(defaultError)
-          .send({ message: err.message || "internal server error" });
+          .send({ message: "An error has occurred on the server" });
       }
     });
 };
@@ -50,17 +50,17 @@ const getUser = (req, res) => {
   User.findById(userId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(castError).send({ message: "bad request" });
+        res.status(castOrValidationError).send({ message: "Invalid data" });
       } else if (err.name === "DocumentNotFoundError") {
         res.status(documentNotFoundError).send({ message: err.message });
       } else {
         res
           .status(defaultError)
-          .send({ message: err.message || "internal server error" });
+          .send({ message: "An error has occurred on the server" });
       }
     });
 };
