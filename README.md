@@ -19,7 +19,7 @@ This project is the back end for my WTWR project. Its current level of functiona
 - Dislike an item
 - Delete an item from the database
 
-## Technoligies used
+## Technologies used
 
 - Node.js
 - Express.js
