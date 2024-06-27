@@ -2,6 +2,7 @@ const {
   castOrValidationError,
   documentNotFoundError,
   defaultError,
+  forbiddenError
 } = require("../utils/errors");
 
 const ClothingItem = require("../models/clothingItem");
@@ -63,7 +64,13 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+
+  ClothingItem.findById(itemId)
+  .then(clothingItem => {
+    if (clothingItem.owner !== req.user._id){
+      return res.status(forbiddenError).send({message: "You don't own this item"})
+    }
+    return ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then((item) => {
       res.send({ message: `deleted item with ID: ${item._id}` });
@@ -81,6 +88,8 @@ const deleteItem = (req, res) => {
           .send({ message: "An error has occurred on the server" });
       }
     });
+
+  })
 };
 
 const likeItem = (req, res) => {

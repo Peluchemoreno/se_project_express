@@ -1,18 +1,50 @@
+const bcrypt = require("bcryptjs");
+
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = require("../utils/config");
+
 const {
   castOrValidationError,
   documentNotFoundError,
   defaultError,
+  invalidEmailError,
+  unauthorizedError,
 } = require("../utils/errors");
 
 const User = require("../models/user");
 
-const createUser = (req, res) => {
-  const { name, avatar } = req.body;
-  User.create({ name, avatar })
+const createUser = (req, res, next) => {
+  const { name, avatar, email, password } = req.body;
+  User.findOne({ email })
     .then((user) => {
-      res.status(201).send(user);
+      if (!email) {
+        const error = new Error();
+        error.name = "ValidationError";
+        return next(error);
+      }
+
+      if (user) {
+        const error = new Error("Please use a different email");
+        error.name = "Invalid Email";
+        return next(error);
+      }
+      return bcrypt.hash(password, 10);
+    })
+    .then((hash) =>
+      User.create({ name, avatar, email, password: hash })
+    ).then((user) => {
+      res.send({
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
+      console.error(err)
+      if (err.name === "Invalid Email") {
+        return res.status(invalidEmailError).send({ message: err.message });
+      }
       if (err.name === "ValidationError") {
         return res
           .status(castOrValidationError)
@@ -65,4 +97,73 @@ const getUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUser, createUser };
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password){
+    return res.status(castOrValidationError).send({message: "Invalid data"})
+  }
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      console.log(err)
+      if (err.name === "ValidationError"){
+        res.status(castOrValidationError).send({message: "Invalid data"})
+      }
+      res.status(unauthorizedError).send({ message: "Not authorized" });
+    });
+};
+
+const getCurrentUser = (req, res) => {
+  const { userId } = req.params;
+  User.findById(userId)
+    .orFail()
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(() => {
+      res
+        .status(defaultError)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
+const updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+  const { userId } = req.params;
+  User.findByIdAndUpdate(
+    userId,
+    { $set: { name, avatar } },
+    { runValidators: true, new: true }
+  )
+    .orFail()
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(castOrValidationError).send({ message: "Invalid data" });
+      } else if (err.name === "DocumentNotFoundError") {
+        res.status(documentNotFoundError).send({ message: err.message });
+      } else {
+        res
+          .status(defaultError)
+          .send({ message: "An error has occurred on the server" });
+      }
+    });
+};
+
+module.exports = {
+  getUsers,
+  getUser,
+  createUser,
+  login,
+  getCurrentUser,
+  updateUser,
+};
