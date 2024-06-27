@@ -8,9 +8,12 @@ const {
   castOrValidationError,
   documentNotFoundError,
   defaultError,
-  invalidEmailError,
+  // invalidEmailError,
   unauthorizedError,
 } = require("../utils/errors");
+
+const DuplicateEmailError = require('../errors/duplicateEmailError')
+const ValidationError = require('../errors/validationError')
 
 const User = require("../models/user");
 
@@ -18,22 +21,20 @@ const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
+
       if (!email) {
-        const error = new Error();
-        error.name = "ValidationError";
-        return next(error);
+        return next(new ValidationError("The data is invalid"));
       }
 
       if (user) {
-        const error = new Error("Please use a different email");
-        error.name = "Invalid Email";
-        return next(error);
+        return next(new DuplicateEmailError('Please use a different email'));
       }
       return bcrypt.hash(password, 10);
     })
     .then((hash) =>
       User.create({ name, avatar, email, password: hash })
-    ).then((user) => {
+  ).then((user) => {
+      console.log(`${password} is the password HEREEEE`)
       res.send({
         email: user.email,
         name: user.name,
@@ -42,9 +43,6 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       console.error(err)
-      if (err.name === "Invalid Email") {
-        return res.status(invalidEmailError).send({ message: err.message });
-      }
       if (err.name === "ValidationError") {
         return res
           .status(castOrValidationError)
