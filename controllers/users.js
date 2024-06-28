@@ -23,11 +23,11 @@ const createUser = (req, res, next) => {
     .then((user) => {
 
       if (!email) {
-        return next(new ValidationError("The data is invalid"));
+        throw new ValidationError("The data is invalid");
       }
 
       if (user) {
-        return next(new DuplicateEmailError('Please use a different email'));
+        throw new DuplicateEmailError('Please use a different email');
       }
       return bcrypt.hash(password, 10);
     })
@@ -42,11 +42,14 @@ const createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.error(err)
+      console.error(err.name)
       if (err.name === "ValidationError") {
         return res
           .status(castOrValidationError)
           .send({ message: "Invalid data" });
+      }
+      if (err.name === "InvalidEmailError"){
+        return res.status(err.statusCode).send({message: "Invalid email"})
       }
       if (err.name === "CastError") {
         return res
