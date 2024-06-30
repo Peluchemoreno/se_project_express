@@ -42,50 +42,9 @@ const createUser = (req, res) => {
       if (err.name === "InvalidEmailError"){
         return res.status(err.statusCode).send({message: "Invalid email"})
       }
-      if (err.name === "CastError") {
-        return res
-          .status(castOrValidationError)
-          .send({ message: "Invalid data" });
-      }
       return res
         .status(defaultError)
         .send({ message: "An error has occurred on the server" });
-    });
-};
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => {
-      res.send(users);
-    })
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        res.status(documentNotFoundError).send({ message: err.message });
-      } else {
-        res
-          .status(defaultError)
-          .send({ message: "An error has occurred on the server" });
-      }
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(castOrValidationError).send({ message: "Invalid data" });
-      } else if (err.name === "DocumentNotFoundError") {
-        res.status(documentNotFoundError).send({ message: err.message });
-      } else {
-        res
-          .status(defaultError)
-          .send({ message: "An error has occurred on the server" });
-      }
     });
 };
 
@@ -104,10 +63,10 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      if (err.name === "ValidationError"){
-        res.status(castOrValidationError).send({message: "Invalid data"})
+      if (err.message === "Incorrect email or password"){
+      return res.status(unauthorizedError).send({ message: "Not authorized" });
       }
-      res.status(unauthorizedError).send({ message: "Not authorized" });
+      return res.status(defaultError).send({message: 'An error has occurred on the server'})
     });
 };
 
@@ -119,7 +78,10 @@ const getCurrentUser = (req, res) => {
     .then((user) => {
       res.send(user);
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError"){
+        res.status(documentNotFoundError).send({message: "The requested resource does not exist"})
+      }
       res
         .status(defaultError)
         .send({ message: "An error has occurred on the server" });
@@ -143,7 +105,10 @@ const updateUser = (req, res) => {
         res.status(castOrValidationError).send({ message: "Invalid data" });
       } else if (err.name === "DocumentNotFoundError") {
         res.status(documentNotFoundError).send({ message: err.message });
-      } else {
+      } else if (err.name === "ValidationError"){
+        res.status(castOrValidationError).send({message: "Invalid data"})
+      }
+      else {
         res
           .status(defaultError)
           .send({ message: "An error has occurred on the server" });
@@ -152,8 +117,6 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
-  getUser,
   createUser,
   login,
   getCurrentUser,

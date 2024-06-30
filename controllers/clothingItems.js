@@ -12,14 +12,11 @@ const getItems = (req, res) => {
     .then((items) => {
       res.send({ data: items });
     })
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        res.status(documentNotFoundError).send({ message: err.message });
-      } else {
+    .catch(() => {
         res
           .status(defaultError)
           .send({ message: "An error has occurred on the server" });
-      }
+
     });
 };
 
