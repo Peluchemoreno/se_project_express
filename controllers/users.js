@@ -8,23 +8,16 @@ const {
   castOrValidationError,
   documentNotFoundError,
   defaultError,
-  // invalidEmailError,
   unauthorizedError,
 } = require("../utils/errors");
 
 const DuplicateEmailError = require('../errors/duplicateEmailError')
-const ValidationError = require('../errors/validationError')
-
 const User = require("../models/user");
 
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
-
-      if (!email) {
-        throw new ValidationError("The data is invalid");
-      }
 
       if (user) {
         throw new DuplicateEmailError('Please use a different email');
@@ -34,7 +27,6 @@ const createUser = (req, res, next) => {
     .then((hash) =>
       User.create({ name, avatar, email, password: hash })
   ).then((user) => {
-      console.log(`${password} is the password HEREEEE`)
       res.send({
         email: user.email,
         name: user.name,
@@ -42,7 +34,6 @@ const createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.error(err.name)
       if (err.name === "ValidationError") {
         return res
           .status(castOrValidationError)
@@ -113,7 +104,6 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      console.log(err)
       if (err.name === "ValidationError"){
         res.status(castOrValidationError).send({message: "Invalid data"})
       }
@@ -122,8 +112,9 @@ const login = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
+  const { _id } = req.user;
+
+  User.findById(_id)
     .orFail()
     .then((user) => {
       res.send(user);
@@ -137,9 +128,9 @@ const getCurrentUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, avatar } = req.body;
-  const { userId } = req.params;
+  const { _id } = req.user;
   User.findByIdAndUpdate(
-    userId,
+    _id,
     { $set: { name, avatar } },
     { runValidators: true, new: true }
   )

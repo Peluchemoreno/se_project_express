@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken')
 
-const {JWT_SECRET} = require('../utils/config');
+const JWT_SECRET = require('../utils/config');
 const { unauthorizedError } = require('../utils/errors');
 
-let payload;
 
-const authorize = (req, res, next) => {
+function authorize(req, res, next){
   const {authorization} = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")){
@@ -13,8 +12,14 @@ const authorize = (req, res, next) => {
   }
 
   const token = authorization.replace("Bearer ", '');
+  let payload;
 
-  payload = jwt.verify(token, JWT_SECRET)
+  try {
+    payload = jwt.verify(token, JWT_SECRET)
+  } catch (err) {
+    // return the appropriate error
+    return res.status(401).send({message: 'Authorization required'})
+  }
 
   req.user = payload;
   return next();

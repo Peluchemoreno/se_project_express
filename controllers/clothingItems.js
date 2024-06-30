@@ -64,32 +64,37 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+  const currentUserId = req.user._id;
 
   ClothingItem.findById(itemId)
+  .orFail()
   .then(clothingItem => {
-    if (clothingItem.owner !== req.user._id){
+    const ownerId = clothingItem?.owner.toString();
+
+
+    if (!(currentUserId === ownerId)){
       return res.status(forbiddenError).send({message: "You don't own this item"})
     }
+
     return ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
     .then((item) => {
       res.send({ message: `deleted item with ID: ${item._id}` });
     })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(castOrValidationError).send({ message: "Invalid data" });
-      } else if (err.name === "DocumentNotFoundError") {
-        res
-          .status(documentNotFoundError)
-          .send({ message: "Requested resource not found" });
-      } else {
-        res
-          .status(defaultError)
-          .send({ message: "An error has occurred on the server" });
-      }
-    });
-
   })
+  .catch((err) => {
+    if (err.name === "CastError") {
+      return res.status(castOrValidationError).send({ message: "Invalid data" });
+    }
+    if (err.name === "DocumentNotFoundError") {
+     return res
+        .status(documentNotFoundError)
+        .send({ message: "Requested resource not found" });
+    }
+    return res
+        .status(defaultError)
+        .send({ message: "An error has occurred on the server" });
+
+  });
 };
 
 const likeItem = (req, res) => {

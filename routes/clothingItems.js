@@ -4,15 +4,17 @@ const authorize = require('../middlewares/auth')
 
 router.get('/', getItems);
 
-router.get('/:itemId', authorize, getItem);
+router.use(authorize)
 
-router.post('/', authorize, createItem);
+router.get('/:itemId', getItem);
 
-router.delete('/:itemId', authorize, deleteItem)
+router.post('/', createItem);
 
-router.put('/:itemId/likes', authorize, likeItem)
+router.delete('/:itemId', deleteItem)
 
-router.delete('/:itemId/likes', authorize, dislikeItem)
+router.put('/:itemId/likes', likeItem)
+
+router.delete('/:itemId/likes', dislikeItem)
 
 module.exports = router;
 
