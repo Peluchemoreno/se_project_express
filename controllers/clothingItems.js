@@ -141,7 +141,7 @@ const dislikeItem = (req, res) => {
   )
     .orFail()
     .then(() => {
-      res.send({ message: `deleted item with ID: ${itemId}` });
+      res.send({ message: `disliked item with ID: ${itemId}` });
     })
     .catch((err) => {
       if (err.name === "CastError") {

@@ -9,7 +9,7 @@ const mainRouter = require('./routes/index')
 const dataBase = "mongodb://127.0.0.1:27017/wtwr_db"
 
 const app = express();
-const {PORT = 3001} = process.env;
+const {PORT = 4000} = process.env;
 mongoose.connect(dataBase, ()=>{});
 
 app.use(cors())

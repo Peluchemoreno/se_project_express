@@ -14,7 +14,7 @@ const {
 const DuplicateEmailError = require('../errors/duplicateEmailError')
 const User = require("../models/user");
 
-const createUser = (req, res) => {
+function createUser(req, res) {
   const { name, avatar, email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
@@ -48,7 +48,7 @@ const createUser = (req, res) => {
     });
 };
 
-const login = (req, res) => {
+function login(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password){
@@ -70,7 +70,7 @@ const login = (req, res) => {
     });
 };
 
-const getCurrentUser = (req, res) => {
+ function getCurrentUser (req, res) {
   const { _id } = req.user;
 
   User.findById(_id)
@@ -88,7 +88,7 @@ const getCurrentUser = (req, res) => {
     });
 };
 
-const updateUser = (req, res) => {
+function updateUser(req, res) {
   const { name, avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(
