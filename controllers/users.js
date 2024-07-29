@@ -30,7 +30,7 @@ function createUser(req, res) {
       res.send({
         email: user.email,
         name: user.name,
-        avatar: user.avatar,
+        avatar: user.avatar || 'default avatar image',
       });
     })
     .catch((err) => {
