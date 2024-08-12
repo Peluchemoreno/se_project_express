@@ -17,7 +17,6 @@ function authorize(req, res, next){
   try {
     payload = jwt.verify(token, JWT_SECRET)
   } catch (err) {
-    // return the appropriate error
     return res.status(unauthorizedError).send({message: 'Authorization required'})
   }
 
