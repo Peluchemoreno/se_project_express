@@ -2,6 +2,8 @@
 
 This project is the back end for my WTWR project. Its current level of functionality implements routing for various CRUD operations completed within the front end of my WTWR project as well as validating the data before it's sent to the database.
 
+The domain is rwtw.strangled.net
+
 ## Current functionality is as follows:
 
 ### Users

@@ -25,6 +25,17 @@ app.use(cors())
 app.use(express.json())
 
 app.use(requestLogger)
+
+// test crash
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
+
+// test crash
+
 app.use('/', mainRouter);
 
 
