@@ -2,6 +2,8 @@ const express = require('express');
 
 require('dotenv').config();
 
+const {errors} = require('celebrate')
+
 const cors = require('cors')
 
 const mongoose = require('mongoose');
@@ -12,7 +14,6 @@ const dataBase = "mongodb://127.0.0.1:27017/wtwr_db"
 
 const errorHandler = require('./middlewares/error-handler')
 
-const {errors} = require('celebrate')
 
 const {requestLogger, errorLogger} = require('./middlewares/logger')
 
