@@ -8,7 +8,7 @@ const getItems = (req, res, next) => {
     .then((items) => {
       res.send({ data: items });
     })
-    .catch(err => next(err));
+    .catch(next);
 };
 
 const getItem = (req, res, next) => {

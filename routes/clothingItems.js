@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const {getItems, getItem, createItem, deleteItem, likeItem, dislikeItem} = require('../controllers/clothingItems');
 const authorize = require('../middlewares/auth')
+const {validateId, validateClothingItem} = require('../middlewares/validation')
 
 router.get('/', getItems);
 
@@ -8,13 +9,13 @@ router.use(authorize)
 
 router.get('/:itemId', getItem);
 
-router.post('/', createItem);
+router.post('/', validateClothingItem, createItem);
 
-router.delete('/:itemId', deleteItem)
+router.delete('/:itemId', validateId, deleteItem)
 
-router.put('/:itemId/likes', likeItem)
+router.put('/:itemId/likes', validateId, likeItem)
 
-router.delete('/:itemId/likes', dislikeItem)
+router.delete('/:itemId/likes', validateId, dislikeItem)
 
 module.exports = router;
 
