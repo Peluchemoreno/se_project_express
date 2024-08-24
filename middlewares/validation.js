@@ -30,7 +30,7 @@ const validateUserCreation = celebrate({
       'string.max': 'The maximum length of the "name" field is 30',
       'string.empty': 'The "name" field can not be empty',
     }),
-    imageUrl: Joi.string().required().custom(validateURL).messages({
+    avatar: Joi.string().required().custom(validateURL).messages({
       'string.empty': 'The "imageUrl" field can not be empty',
       'string.uri': 'The "imageUrl" field must be a valid url'
     }),
